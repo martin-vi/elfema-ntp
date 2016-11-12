@@ -68,7 +68,7 @@ After that the clock will set itself to the current time. Please do **not** use 
 
 ## Ideas
 
-* Secure HTTP interface with challenge-response authentication
-* [OTA Updates](http://docs.platformio.org/en/stable/platforms/espressif8266.html#over-the-air-ota-update) with platfromio
-* build some nifty mobile app ([apache cordova](https://cordova.apache.org/)?)
 * add a spare AM2302 sensor on GPIO16
+* Secure HTTP interface with challenge-response authentication
+* [OTA Updates](http://docs.platformio.org/en/stable/platforms/espressif8266.html#over-the-air-ota-update)
+* build some nifty mobile app ([apache cordova](https://cordova.apache.org/)?)

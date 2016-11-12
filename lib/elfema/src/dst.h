@@ -1,10 +1,12 @@
-
 const int SUNDAY=0;
 const int MARCH=3;
 const int OCTOBER=10;
 
 const int DST_WINTER=0;
 const int DST_SUMMER=1;
+
+const int DST_fall_back_hour=3;
+const int DST_spring_forward_hour=2;
 
 char dow(int y, char m, char d);
 char NthDate(int year, char month, char DOW, char NthWeek);
