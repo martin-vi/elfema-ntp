@@ -4,6 +4,9 @@
 
 #include <TimeLib.h> 
 #include <ESP8266WiFi.h>
+#include <DNSServer.h>
+#include <ESP8266WebServer.h>
+#include <WiFiManager.h>         //https://github.com/tzapu/WiFiManager
 
 void setup() 
 {
@@ -19,13 +22,18 @@ void setup()
     Serial.println("TimeNTP Example");
     Serial.print("Connecting to ");
     Serial.println(WIFI_SSID);
-    WiFi.begin(WIFI_SSID, WIFI_PASSW);
+    
+    // WiFi.begin(WIFI_SSID, WIFI_PASSW);
+    // while (WiFi.status() != WL_CONNECTED) {
+    //     delay(500);
+    //     Serial.print(".");
+    // }
 
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.print(".");
-    }
-
+    WiFiManager wifiManager;
+    //reset settings - for testing
+    //wifiManager.resetSettings();
+    wifiManager.autoConnect("elfema", "elfemaclock");
+    
     // init clock with two steps
     step_clock();
     step_clock();
