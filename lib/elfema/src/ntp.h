@@ -9,5 +9,5 @@ extern WiFiUDP Udp;
 
 char * formatTimeDigits(int num);
 String get_ntp_date_time(int hour, int minute, int second, int day, int month, int year);
-time_t getNtpTime();
+time_t getNtpTime(char *ntp_server_ip);
 void sendNTPpacket(IPAddress &address);

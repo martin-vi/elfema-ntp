@@ -1,7 +1,0 @@
-NTP_IP=192.168.42.100
-
-SSID=$(cut -f1 secret)
-PASSWORD=$(cut -f2 secret)
-
-export PLATFORMIO_BUILD_FLAGS="'-DWIFI_PASSW=\"$PASSWORD\"' '-DWIFI_SSID=\"$SSID\"' '-DNTP_IP=\"$NTP_IP\"'"
-

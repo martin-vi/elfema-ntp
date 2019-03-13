@@ -41,10 +41,10 @@ String get_ntp_date_time(int hour, int minute, int second, int day, int month, i
  *  https://github.com/PaulStoffregen/Time/blob/master/examples/TimeNTP_ESP8266WiFi/TimeNTP_ESP8266WiFi.ino
  */
 
-time_t getNtpTime() {
+time_t getNtpTime(char *ntp_server_ip) {
     byte packetBuffer[NTP_PACKET_SIZE];
-    IPAddress ntp_server_ip = IPAddress();
-    ntp_server_ip.fromString(NTP_IP);
+    IPAddress ip = IPAddress();
+    ip.fromString(ntp_server_ip);
 
     Udp.begin(localPort);
     /*
@@ -56,12 +56,12 @@ time_t getNtpTime() {
 
     while (Udp.parsePacket() > 0); // discard any previously received packets
 
-    sendNTPpacket(ntp_server_ip);
+    sendNTPpacket(ip);
     uint32_t beginWait = millis();
     while (millis() - beginWait < 1500) {
         int size = Udp.parsePacket();
         if (size >= NTP_PACKET_SIZE) {
-            Udp.read(packetBuffer, ntp_server_ip);  // read packet into the buffer
+            Udp.read(packetBuffer, ip);  // read packet into the buffer
             unsigned long secsSince1900;
             // convert four bytes starting at location 40 to a long integer
             secsSince1900 =  (unsigned long)packetBuffer[40] << 24;

@@ -7,6 +7,12 @@
 #include <DNSServer.h>
 #include <ESP8266WebServer.h>
 #include <WiFiManager.h>         //https://github.com/tzapu/WiFiManager
+#include <FS.h>
+
+void reset_clock();
+void reboot_clock();
+
+WiFiManager wifiManager;
 
 void setup() 
 {
@@ -16,24 +22,20 @@ void setup()
     pinMode(IO_4, OUTPUT);
     no_switch_state();
 
-    Serial.begin(9600);
+    Serial.begin(115200);
     while (!Serial) ; 
     delay(250);
-    Serial.println("TimeNTP Example");
-    Serial.print("Connecting to ");
-    Serial.println(WIFI_SSID);
-    
-    // WiFi.begin(WIFI_SSID, WIFI_PASSW);
-    // while (WiFi.status() != WL_CONNECTED) {
-    //     delay(500);
-    //     Serial.print(".");
-    // }
 
-    WiFiManager wifiManager;
-    //reset settings - for testing
-    //wifiManager.resetSettings();
+    SPIFFS.begin();
+    read_ntp_config();
+
+    WiFiManagerParameter p_ntp_server_ip("ntp_server_ip", "ntp server ip", ntp_server_ip, 15);
+    wifiManager.addParameter(&p_ntp_server_ip);
     wifiManager.autoConnect("elfema", "elfemaclock");
     
+    strcpy(ntp_server_ip, p_ntp_server_ip.getValue());
+    write_ntp_config();
+
     // init clock with two steps
     step_clock();
     step_clock();
@@ -48,6 +50,8 @@ void setup()
     server.on("/stop", set_clock_stop_command);
     server.on("/time", get_time_command);
     server.on("/query_ntp", query_ntp_command);
+    server.on("/reset", reset_clock);
+    server.on("/reboot", reboot_clock);
 
     server.on("/step", [](){
             step_clock();
@@ -63,7 +67,7 @@ void setup()
     Serial.print("Local port: ");
     Serial.println(Udp.localPort());
     Serial.println("waiting for sync");
-    setSyncProvider(getNtpTime);
+    setSyncProvider(query_ntp_time);
     setSyncInterval(6*60*60); // every 6 hours
 }
 
@@ -151,4 +155,13 @@ void loop()
         delay(3000);
         manual_ntpquery();
     }
+}
+
+void reset_clock() {
+    wifiManager.resetSettings();
+    ESP.restart();
+}
+
+void reboot_clock() {
+    ESP.restart();
 }

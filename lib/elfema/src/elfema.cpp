@@ -2,8 +2,10 @@
 #include "ntp.h"
 
 #include <TimeLib.h> 
+#include <WiFiManager.h>
+#include <FS.h>
 
-ESP8266WebServer server(webserver_port);
+ESP8266WebServer server(80);
 
 /* clock stuff and display */
 int state = modeA;
@@ -12,6 +14,11 @@ int prevMinute = undefined;
 int display_hour = undefined;
 int display_minute = undefined;
 int DST = undefined;
+char ntp_server_ip[15] = "";
+
+const static char* config_file = "/config.txt";
+// ptbtime1.ptb.de
+const static char* default_ntp_sever = "192.53.103.108";
 
 void step_clock() {
     if (state == modeA) {
@@ -106,8 +113,12 @@ void get_time_command() {
     server.send(200, "text/plain", "ntp time and date: " + time_str + "\n");
 }
 
+time_t query_ntp_time() {
+    return getNtpTime(ntp_server_ip);
+}
+
 bool manual_ntpquery() {
-    time_t query_result = getNtpTime();
+    time_t query_result = query_ntp_time();
     if ( query_result != 0 ) {
         setTime(query_result);
         return true;
@@ -117,12 +128,13 @@ bool manual_ntpquery() {
 }
 
 void query_ntp_command() {
-    String time_str;
     if ( manual_ntpquery() == true ) {
-        time_str = get_ntp_date_time(DST_hour(), minute(), second(), day(), month(), year());
-        server.send(200, "text/plain", "ntp query success\nntp time and date: " + time_str + "\n");
+        String time_str = get_ntp_date_time(DST_hour(), minute(), second(), day(), month(), year());
+        String msg = "ntp query success " + String(ntp_server_ip) + "\n";
+        msg += "ntp time and date: " + time_str + "\n";
+        server.send(200, "text/plain", msg);
     } else {
-        server.send(500, "text/plain", "ntp query failed\n");
+        server.send(500, "text/plain", "ntp query failed for " + String(ntp_server_ip) + "\n");
     }
 }
 
@@ -139,5 +151,30 @@ void handleNotFound() {
         message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
     }
     server.send(404, "text/plain", message);
+}
+
+void read_ntp_config() {
+    File f = SPIFFS.open(config_file, "r");
+    if (!f) {
+        Serial.println("Configuration file not found");
+        strcpy(ntp_server_ip, default_ntp_sever);
+    } else {
+        f.readBytes(ntp_server_ip, 15);
+        f.close();
+        Serial.print("configured ntp server: ");
+        Serial.println(ntp_server_ip);
+    }
+}
+
+void write_ntp_config() {
+    File f = SPIFFS.open(config_file, "w");
+    if (!f) {
+        Serial.println("Failed to open config file for writing");
+    } else {
+        f.print(ntp_server_ip);
+        f.close();
+        Serial.print("ntp server config written: ");
+        Serial.println(ntp_server_ip);
+    }
 }
 
