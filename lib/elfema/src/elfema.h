@@ -1,10 +1,10 @@
 #include <ESP8266WebServer.h>
 
 /* clock stuff */
-const static int IO_1 = 2;
-const static int IO_2 = 13;
-const static int IO_3 = 12;
-const static int IO_4 = 14;
+const static int IO_1 = 14;
+const static int IO_2 = 12;
+const static int IO_3 = 16;
+const static int IO_4 = 13;
 
 const static int modeA = 0;
 const static int modeB = 1;
